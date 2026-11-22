@@ -1,4 +1,4 @@
-const CACHE_NAME = "roblox-studio-app-v1";
+const CACHE_NAME = "roblox-studio-app-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -10,9 +10,6 @@ const APP_SHELL = [
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-
-    // Cache each asset independently so a not-yet-uploaded icon
-    // does not prevent the Service Worker from installing.
     await Promise.all(APP_SHELL.map(async (asset) => {
       try {
         const response = await fetch(asset, { cache: "reload" });
@@ -21,7 +18,6 @@ self.addEventListener("install", (event) => {
         console.warn("Could not precache:", asset, error);
       }
     }));
-
     await self.skipWaiting();
   })());
 });
@@ -29,9 +25,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(
-      keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-    );
+    await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
     await self.clients.claim();
   })());
 });
@@ -39,7 +33,6 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
-
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
@@ -64,7 +57,6 @@ self.addEventListener("fetch", (event) => {
   event.respondWith((async () => {
     const cached = await caches.match(request);
     if (cached) return cached;
-
     try {
       const response = await fetch(request);
       if (response.ok) {
