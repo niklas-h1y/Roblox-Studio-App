@@ -1,4 +1,4 @@
-const CACHE_NAME = "roblox-studio-app-v1";
+const CACHE_NAME = "roblox-studio-app-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -11,8 +11,8 @@ self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
 
-    // Cache each asset independently so a not-yet-uploaded icon
-    // does not prevent the Service Worker from installing.
+    // Cache each asset independently so one missing asset does not
+    // prevent the service worker from installing.
     await Promise.all(APP_SHELL.map(async (asset) => {
       try {
         const response = await fetch(asset, { cache: "reload" });
